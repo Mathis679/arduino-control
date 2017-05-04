@@ -6,29 +6,22 @@
     android:layout_height="match_parent"
     android:background="@android:color/background_light"
 
-    tools:context="com.example.iem.arduinocontrol.MainActivity">
-
-    <TextView
-        android:id="@+id/tv_noconnect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
-        android:text="Vous n'etes pas connecté par bluetooth à l'arduino"/>
+    tools:context="com.example.iem.arduinocontrol.SplashActivity">
 
     <LinearLayout
-        android:id="@+id/ll_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/holo_red_light"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true">
 
-        <Button
-            android:id="@+id/butchangemod"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@android:color/holo_blue_dark"
-            android:text="Changer de mode"/>
+            android:layout_gravity="center"
+            android:textColor="@android:color/white"
+            android:text="Gérer votre arduino à distance"
+            android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionMode.Title"/>
 
     </LinearLayout>
 
