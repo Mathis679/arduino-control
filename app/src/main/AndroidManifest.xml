@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.iem.arduinocontrol">
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -11,6 +17,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
 
+
         </activity>
         <activity android:name=".SplashActivity">
             <intent-filter>
@@ -19,6 +26,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver android:name=".MainActivity$PairingRequest">
+        <intent-filter>
+            <action android:name="android.bluetooth.device.action.PAIRING_REQUEST" />
+            <action android:name="android.bluetooth.device.action.PAIRING_CANCEL" />
+        </intent-filter>
+    </receiver>
     </application>
 
 </manifest>
