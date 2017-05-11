@@ -1,5 +1,6 @@
 package com.example.iem.arduinocontrol;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothA2dp;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothClass;
@@ -7,10 +8,14 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -21,6 +26,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -34,10 +41,14 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout bg;
     boolean basemode;
     BluetoothA2dp bt;
-    //String deviceName = "Adafruit BlueFruit LE";
+    //String deviceName = "Adafruit Bluefruit LE";
     String deviceName = "G4";
     BluetoothDevice arduino = null;
     private final static int REQUEST_CODE_ENABLE_BLUETOOTH = 0;
+    DataOutputStream os;
+
+
+
     private final BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -136,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void connectToArduino(BluetoothAdapter bA){
-
+//solution 1
 //        Method connect = null;
 //        try {
 //            connect = BluetoothA2dp.class.getDeclaredMethod("connect", BluetoothDevice.class);
@@ -170,48 +181,110 @@ public class MainActivity extends AppCompatActivity {
 //            Toast.makeText(MainActivity.this, "Impossible de trouver le module Arduino, assurez-vous d'etre assez pret de lui", Toast.LENGTH_SHORT).show();
 //        }
 
+//solution 2
+//        setDiscoverable();
+//        if(arduino.getBondState()==arduino.BOND_BONDED) {
+//
+//            Log.d(MainActivity.class.getName(), arduino.getName());
+//            //BluetoothSocket mSocket=null;
+//            try {
+//
+//
+//                //UUID mUUID = arduino.getUuids()[0].getUuid();
+//
+//
+//                mSocket = arduino.createInsecureRfcommSocketToServiceRecord(DEFAULT_UUID);
+//            } catch (IOException e1) {
+//                // TODO Auto-generated catch block
+//                Log.d(MainActivity.class.getName(), "socket not created");
+//                e1.printStackTrace();
+//            }
+//            try {
+//
+//                mSocket.connect();
+//                Log.d("Connect","it works");
+//
+//            } catch (IOException e) {
+//                try {
+//
+//                    mSocket.close();
+//                    Log.d(MainActivity.class.getName(), "Cannot connect");
+//                    e.printStackTrace();
+//                } catch (IOException e1) {
+//                    Log.d(MainActivity.class.getName(), "Socket not closed");
+//                    // TODO Auto-generated catch block
+//                    e1.printStackTrace();
+//                }
+//
+//
+//            }
+//        }else{
+//            IntentFilter filter = new IntentFilter("android.bluetooth.device.action.PAIRING_REQUEST");
+//            registerReceiver(new PairingRequest(), filter);
+//        }
 
-        setDiscoverable();
-        if(arduino.getBondState()==arduino.BOND_BONDED) {
+        //solution 3
+//        AlertDialog alertDialog = new AlertDialog.Builder(this).create(); //Read Update
+//        alertDialog.setTitle("Connexion");
+//        alertDialog.setMessage("Veuillez vous connecter via bluetooth au modèle arduino.");
+//
+//        alertDialog.setButton("Ok", new DialogInterface.OnClickListener() {
+//            public void onClick(DialogInterface dialog, int which) {
+//                Intent settingsIntent = new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+//                startActivity(settingsIntent);
+//            }
+//        });
+//
+//        alertDialog.show();
 
-            Log.d(MainActivity.class.getName(), arduino.getName());
-            //BluetoothSocket mSocket=null;
-            try {
+        //solution 4
+        try{
 
+            Method m = arduino.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
 
-                //UUID mUUID = arduino.getUuids()[0].getUuid();
+            BluetoothSocket clientSocket =  (BluetoothSocket) m.invoke(arduino, 1);
 
+            clientSocket.connect();
 
-                mSocket = arduino.createInsecureRfcommSocketToServiceRecord(DEFAULT_UUID);
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                Log.d(MainActivity.class.getName(), "socket not created");
-                e1.printStackTrace();
-            }
-            try {
+            os = new DataOutputStream(clientSocket.getOutputStream());
 
-                mSocket.connect();
-                Log.d("Connect","it works");
-
-            } catch (IOException e) {
-                try {
-
-                    mSocket.close();
-                    Log.d(MainActivity.class.getName(), "Cannot connect");
-                    e.printStackTrace();
-                } catch (IOException e1) {
-                    Log.d(MainActivity.class.getName(), "Socket not closed");
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-
-
-            }
-        }else{
-            IntentFilter filter = new IntentFilter("android.bluetooth.device.action.PAIRING_REQUEST");
-            registerReceiver(new PairingRequest(), filter);
+            new clientSock().start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e("BLUETOOTH", e.getMessage());
         }
 
+        //solution 5
+//        Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+//        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Sample.txt");
+//
+//        sharingIntent.setType("text/plain");
+//        sharingIntent.setPackage("com.android.bluetooth");
+//        sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+//        startActivity(Intent.createChooser(sharingIntent, "Share file"));
+
+    }
+
+    public class clientSock extends Thread {
+        public void run() {
+            try {
+                os.writeBytes("anything you want"); // anything you want
+                os.flush();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                return;
+            }
+        }
+    }
+
+    public void sendMessViaBT(){
+
+    }
+
+    public boolean isConnected(){
+        BluetoothAdapter bA = BluetoothAdapter.getDefaultAdapter();
+        bA.getRemoteDevice(arduino.getAddress());
+        return true;
     }
 
     public void setDiscoverable(){
