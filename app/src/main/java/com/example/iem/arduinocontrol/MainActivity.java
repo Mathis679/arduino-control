@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout bg;
     boolean basemode;
     BluetoothA2dp bt;
-    //String deviceName = "Adafruit Bluefruit LE";
-    String deviceName = "G4";
+    String deviceName = "Adafruit Bluefruit LE";
+    //String deviceName = "G4";
     BluetoothDevice arduino = null;
     private final static int REQUEST_CODE_ENABLE_BLUETOOTH = 0;
     DataOutputStream os;
@@ -247,7 +247,8 @@ public class MainActivity extends AppCompatActivity {
             clientSocket.connect();
 
             os = new DataOutputStream(clientSocket.getOutputStream());
-
+            Log.d("deviceconnected",clientSocket.getRemoteDevice().getName());
+            Log.d("isconnected",Boolean.toString(clientSocket.isConnected()));
             new clientSock().start();
         } catch (Exception e) {
             e.printStackTrace();
@@ -268,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
     public class clientSock extends Thread {
         public void run() {
             try {
-                os.writeBytes("anything you want"); // anything you want
+                os.writeBytes("1"); // anything you want
                 os.flush();
             } catch (Exception e1) {
                 e1.printStackTrace();
